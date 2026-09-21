@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Ecommerce</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .nav-main {
+            background-color: #f9c6d0;
+            padding: 15px;
+        }
+        .nav-main .navbar-brand img {
+            height: 40px;
+        }
+        .nav-main .nav-link {
+            color: white !important;
+        }
+        .search-section {
+            padding: 40px 0;
+        }
+        .product-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            height: 100%;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .product-card img {
+            width: 100%;
+            height: auto;
+            max-height: 300px;
+            object-fit: contain;
+            background-color: #f8f9fa;
+        }
+        .product-info {
+            padding: 15px;
+        }
+        .price-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #f9c6d0;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .search-info {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg nav-main">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'images/logo.jpg' %}" alt="Logo">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Contact Us</a>
+                    </li>
+                </ul>
+                <form class="d-flex me-3" action="{% url 'search' %}" method="GET">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Search products..." value="{{ query }}">
+                    <button class="btn btn-outline-light" type="submit">Search</button>
+                </form>
+                <div class="d-flex align-items-center">
+                    {% if user.is_authenticated %}
+                        <div class="cart-section me-3">
+                            <a href="{% url 'cart' %}" class="text-white">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span class="badge bg-danger">
+                                    {% if cart_count > 99 %}
+                                        99+
+                                    {% else %}
+                                        {{ cart_count }}
+                                    {% endif %}
+                                </span>
+                            </a>
+                        </div>
+                        <a href="{% url 'logout' %}" class="btn btn-outline-light">Logout</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-light me-2">Login</a>
+                        <a href="{% url 'register' %}" class="btn btn-light">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Results Section -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-info">
+                <h2>Search Results</h2>
+                {% if query %}
+                    <p>Showing results for: "{{ query }}"</p>
+                {% endif %}
+                <p>Found {{ products.count }} products</p>
+            </div>
+            
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                {% for product in products %}
+                <div class="col">
+                    <div class="product-card">
+                        <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            <div class="product-info">
+                                <h5 class="text-dark">{{ product.name }}</h5>
+                                <p class="text-muted">{{ product.description|truncatechars:100 }}</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        No products found matching your search.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
