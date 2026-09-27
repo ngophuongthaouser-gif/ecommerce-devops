@@ -1,4 +1,4 @@
-name: CI/CD - Docker Build and Push
+name: CI/CD - Docker Build Push Deploy
 
 on:
   push:
@@ -35,3 +35,7 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/petfood:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Trigger Render deployment
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
