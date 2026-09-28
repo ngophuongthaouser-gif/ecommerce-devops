@@ -97,7 +97,7 @@
                         </div>
                         <div class="order-details">
                             <p><strong>Ngày đặt:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
-                            <p><strong>Tổng tiền:</strong> {{ order.total_amount }} VNĐ</p>
+                            <p><strong>Tổng tiền:</strong> {{ order.total_amount|vnd }}</p>
                             <p><strong>Dự kiến giao:</strong> {{ order.delivery_date|date:"d/m/Y" }} lúc {{ order.delivery_time|time:"H:i" }}</p>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                         </div>
                         <div class="order-details">
                             <p><strong>Ngày đặt:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
-                            <p><strong>Tổng tiền:</strong> {{ order.total_amount }} VNĐ</p>
+                            <p><strong>Tổng tiền:</strong> {{ order.total_amount|vnd }}</p>
                             <p><strong>Ngày giao:</strong> {{ order.delivery_date|date:"d/m/Y" }}</p>
                         </div>
                         <div class="order-items">
@@ -168,7 +168,7 @@
                         </div>
                         <div class="order-details">
                             <p><strong>Ngày đặt:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
-                            <p><strong>Tổng tiền:</strong> {{ order.total_amount }} VNĐ</p>
+                            <p><strong>Tổng tiền:</strong> {{ order.total_amount|vnd }}</p>
                         </div>
                         <div class="order-items">
                             <h6>Sản phẩm:</h6>

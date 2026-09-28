@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản trị | Pet Shop</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #342c2c;
+            --muted: #817779;
+            --pink: #f5b8c7;
+            --pink-deep: #bd607a;
+            --paper: #fffaf7;
+            --line: #eee5e2;
+            --green: #39745d;
+            --amber: #a66d22;
+            --red: #a94f50;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.45 "Segoe UI", sans-serif; }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+        .shell { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+        .sidebar { background: #fff; border-right: 1px solid var(--line); padding: 25px 18px; display: flex; flex-direction: column; }
+        .brand { display: flex; align-items: center; gap: 12px; padding: 0 7px 28px; font-weight: 750; font-size: 18px; }
+        .brand-mark { width: 40px; height: 40px; border-radius: 50%; background: var(--pink); display: grid; place-items: center; color: #fff; font-size: 21px; }
+        .eyebrow { margin: 9px 10px 10px; color: #a39697; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+        .nav { display: grid; gap: 5px; }
+        .nav button { border: 0; background: transparent; color: #685e60; text-align: left; padding: 11px 12px; border-radius: 7px; font-weight: 600; }
+        .nav button:hover { background: #fff4f4; }
+        .nav button.active { color: #8f455d; background: #fce9ed; }
+        .nav-icon { display: inline-block; width: 27px; color: var(--pink-deep); }
+        .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--line); padding: 18px 8px 0; }
+        .admin-chip { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .avatar { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: #f8dce3; color: #83485a; font-weight: 700; }
+        .admin-chip small { display: block; color: var(--muted); }
+        .logout { width: 100%; border: 1px solid var(--line); border-radius: 6px; background: #fff; padding: 9px; color: #65595b; }
+        main { min-width: 0; padding: 27px clamp(18px, 4vw, 52px) 55px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 29px; }
+        .crumb { color: var(--muted); font-size: 13px; }
+        h1 { margin: 4px 0 0; font-size: clamp(23px, 3vw, 29px); line-height: 1.2; }
+        .date { color: var(--muted); font-size: 13px; }
+        .section { display: none; animation: enter .22s ease-out; }
+        .section.active { display: block; }
+        @keyframes enter { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+        .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 26px; }
+        .stat { background: #fff; border: 1px solid var(--line); border-radius: 7px; padding: 18px 20px; }
+        .stat-label { color: var(--muted); font-size: 13px; }
+        .stat-value { display: block; font-size: 25px; font-weight: 750; margin-top: 8px; }
+        .stat-note { color: var(--green); font-size: 12px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 24px 0 14px; }
+        .toolbar h2 { font-size: 18px; margin: 0; }
+        .tools { display: flex; gap: 9px; align-items: center; }
+        .search { width: min(240px, 40vw); border: 1px solid var(--line); background: white; border-radius: 6px; padding: 9px 11px; outline-color: var(--pink-deep); }
+        .primary { border: 0; background: var(--ink); color: white; border-radius: 6px; padding: 10px 14px; font-weight: 650; }
+        .primary:hover { background: #59494c; }
+        .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 700px; }
+        th, td { border-bottom: 1px solid #f1ebea; padding: 13px 15px; vertical-align: middle; }
+        th { color: var(--muted); font-size: 12px; font-weight: 700; background: #fffdfc; }
+        tr:last-child td { border-bottom: 0; }
+        .product-name { font-weight: 650; }
+        .subtext { color: var(--muted); font-size: 12px; }
+        .badge { display: inline-block; border-radius: 20px; padding: 4px 9px; font-size: 12px; font-weight: 650; background: #edf5f0; color: var(--green); white-space: nowrap; }
+        .badge.waiting { background: #fff3de; color: var(--amber); }
+        .badge.off { background: #f5eaea; color: var(--red); }
+        .action { border: 1px solid var(--line); border-radius: 5px; padding: 6px 9px; background: #fff; color: #65595b; font-size: 12px; }
+        .action:hover { border-color: var(--pink-deep); color: var(--pink-deep); }
+        .action.danger { color: var(--red); }
+        .form-row { display: none; grid-template-columns: 1fr 1fr 1fr auto; gap: 9px; background: #fff; border: 1px solid var(--line); padding: 12px; border-radius: 7px; margin-bottom: 13px; }
+        .form-row.show { display: grid; }
+        .form-row input, .form-row select { min-width: 0; border: 1px solid var(--line); padding: 9px; border-radius: 5px; }
+        .empty { padding: 30px; text-align: center; color: var(--muted); }
+        @media (max-width: 760px) {
+            .shell { grid-template-columns: 1fr; }
+            .sidebar { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px 14px; }
+            .brand { padding: 0 5px 10px; }
+            .eyebrow, .sidebar-bottom { display: none; }
+            .nav { grid-template-columns: repeat(3, 1fr); }
+            .nav button { text-align: center; padding: 9px 4px; font-size: 12px; }
+            .nav-icon { display: block; width: auto; margin-bottom: 2px; }
+            main { padding: 21px 14px 40px; }
+            .topbar { margin-bottom: 20px; }
+            .date { display: none; }
+            .stats { gap: 8px; }
+            .stat { padding: 13px 11px; }
+            .stat-value { font-size: 20px; }
+            .stat-label { font-size: 11px; }
+            .toolbar { align-items: flex-start; flex-direction: column; }
+            .tools { width: 100%; }
+            .search { flex: 1; width: auto; }
+            .form-row, .form-row.show { grid-template-columns: 1fr 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; } }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">P</span><span>Pet Shop <small class="subtext">QUẢN TRỊ</small></span></div>
+        <div class="eyebrow">Tổng quan</div>
+        <nav class="nav" aria-label="Điều hướng quản trị">
+            <button class="active" data-view="products"><span class="nav-icon">◇</span>Sản phẩm</button>
+            <button data-view="accounts"><span class="nav-icon">◎</span>Tài khoản</button>
+            <button data-view="orders"><span class="nav-icon">▤</span>Đơn hàng</button>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="admin-chip"><span class="avatar">A</span><span><strong>admin</strong><small>Quản trị viên</small></span></div>
+            <button class="logout" id="logout">Đăng xuất</button>
+        </div>
+    </aside>
+    <main>
+        <header class="topbar">
+            <div><div class="crumb">Pet Shop / Quản trị</div><h1 id="page-title">Quản lý sản phẩm</h1></div>
+            <div class="date" id="today"></div>
+        </header>
+
+        <section class="section active" id="products">
+            <div class="stats">
+                <div class="stat"><span class="stat-label">Tổng sản phẩm</span><strong class="stat-value" id="product-count">0</strong><span class="stat-note">Trong danh mục</span></div>
+                <div class="stat"><span class="stat-label">Tài khoản khách hàng</span><strong class="stat-value" id="account-count">3</strong><span class="stat-note">Tài khoản mẫu</span></div>
+                <div class="stat"><span class="stat-label">Đơn hàng mới</span><strong class="stat-value" id="order-count">0</strong><span class="stat-note">Chờ xác nhận</span></div>
+            </div>
+            <div class="toolbar"><h2>Danh sách sản phẩm</h2><div class="tools"><input class="search" data-search="product-table" placeholder="Tìm sản phẩm..." aria-label="Tìm sản phẩm"><button class="primary" id="show-product-form">+ Thêm sản phẩm</button></div></div>
+            <form class="form-row" id="product-form">
+                <input name="name" placeholder="Tên sản phẩm" required>
+                <input name="category" placeholder="Danh mục" required>
+                <input name="price" type="number" min="0" placeholder="Giá (đ)" required>
+                <button class="primary" type="submit">Lưu</button>
+            </form>
+            <div class="table-wrap"><table id="product-table"><thead><tr><th>SẢN PHẨM</th><th>DANH MỤC</th><th>GIÁ</th><th>TRẠNG THÁI</th><th></th></tr></thead><tbody></tbody></table></div>
+        </section>
+
+        <section class="section" id="accounts">
+            <div class="toolbar"><h2>Tài khoản khách hàng</h2><div class="tools"><input class="search" data-search="account-table" placeholder="Tìm tài khoản..." aria-label="Tìm tài khoản"><button class="primary" id="show-account-form">+ Thêm tài khoản</button></div></div>
+            <form class="form-row" id="account-form">
+                <input name="name" placeholder="Tên khách hàng" required>
+                <input name="username" placeholder="Tên đăng nhập" required>
+                <input name="email" type="email" placeholder="Email" required>
+                <button class="primary" type="submit">Lưu</button>
+            </form>
+            <div class="table-wrap"><table id="account-table"><thead><tr><th>KHÁCH HÀNG</th><th>TÊN ĐĂNG NHẬP</th><th>EMAIL</th><th>TRẠNG THÁI</th><th></th></tr></thead><tbody></tbody></table></div>
+        </section>
+
+        <section class="section" id="orders">
+            <div class="toolbar"><h2>Danh sách đơn hàng</h2><div class="tools"><input class="search" data-search="order-table" placeholder="Tìm mã đơn / khách hàng..." aria-label="Tìm đơn hàng"></div></div>
+            <div class="table-wrap"><table id="order-table"><thead><tr><th>MÃ ĐƠN</th><th>KHÁCH HÀNG</th><th>NGÀY ĐẶT</th><th>TỔNG TIỀN</th><th>TRẠNG THÁI</th></tr></thead><tbody></tbody></table></div>
+        </section>
+    </main>
+</div>
+<script>
+    if (localStorage.getItem('petshopAdminSession') !== 'active') {
+        window.location.replace('/login/');
+    }
+
+    const sample = {
+        products: [
+            { name: 'Thức ăn hạt cho chó', category: 'Thức ăn', price: 185000, active: true },
+            { name: 'Vòng cổ mèo mềm mại', category: 'Phụ kiện', price: 95000, active: true },
+            { name: 'Đồ chơi bóng len', category: 'Đồ chơi', price: 45000, active: true },
+            { name: 'Sữa tắm dịu nhẹ', category: 'Chăm sóc', price: 125000, active: false }
+        ],
+        accounts: [
+            { name: 'Nguyễn Minh Anh', username: 'minhanh', email: 'minhanh@example.com', active: true },
+            { name: 'Trần Gia Bảo', username: 'giabao', email: 'giabao@example.com', active: true },
+            { name: 'Lê Khánh Linh', username: 'khanhlinh', email: 'khanhlinh@example.com', active: false }
+        ],
+        orders: [
+            { id: 'PS-1024', customer: 'Nguyễn Minh Anh', date: '27/09/2026', total: 280000, status: 'Chờ xác nhận' },
+            { id: 'PS-1023', customer: 'Trần Gia Bảo', date: '26/09/2026', total: 95000, status: 'Đang giao' },
+            { id: 'PS-1022', customer: 'Lê Khánh Linh', date: '25/09/2026', total: 170000, status: 'Đã giao' }
+        ]
+    };
+    const data = {};
+    for (const key of Object.keys(sample)) {
+        const saved = localStorage.getItem(`petshopAdmin_${key}`);
+        data[key] = saved ? JSON.parse(saved) : sample[key];
+    }
+
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+    const money = (value) => `${Number(value).toLocaleString('vi-VN')} đ`;
+    function save(key) { localStorage.setItem(`petshopAdmin_${key}`, JSON.stringify(data[key])); }
+    function render() {
+        document.querySelector('#product-table tbody').innerHTML = data.products.map((item, index) => `<tr><td><span class="product-name">${escapeHtml(item.name)}</span></td><td>${escapeHtml(item.category)}</td><td>${money(item.price)}</td><td><span class="badge ${item.active ? '' : 'off'}">${item.active ? 'Đang bán' : 'Tạm ẩn'}</span></td><td><button class="action danger" data-remove-product="${index}">Xóa</button></td></tr>`).join('');
+        document.querySelector('#account-table tbody').innerHTML = data.accounts.map((item, index) => `<tr><td><span class="product-name">${escapeHtml(item.name)}</span></td><td>${escapeHtml(item.username)}</td><td>${escapeHtml(item.email)}</td><td><span class="badge ${item.active ? '' : 'off'}">${item.active ? 'Hoạt động' : 'Đã khóa'}</span></td><td><button class="action" data-toggle-account="${index}">${item.active ? 'Khóa' : 'Mở khóa'}</button></td></tr>`).join('');
+        document.querySelector('#order-table tbody').innerHTML = data.orders.map((item, index) => `<tr><td><strong>${escapeHtml(item.id)}</strong></td><td>${escapeHtml(item.customer)}</td><td>${escapeHtml(item.date)}</td><td>${money(item.total)}</td><td><select class="action order-status" data-order="${index}" aria-label="Trạng thái đơn ${escapeHtml(item.id)}">${['Chờ xác nhận', 'Đang giao', 'Đã giao', 'Đã hủy'].map((status) => `<option ${item.status === status ? 'selected' : ''}>${status}</option>`).join('')}</select></td></tr>`).join('');
+        document.getElementById('product-count').textContent = data.products.length;
+        document.getElementById('account-count').textContent = data.accounts.length;
+        document.getElementById('order-count').textContent = data.orders.filter((item) => item.status === 'Chờ xác nhận').length;
+    }
+
+    document.querySelectorAll('.nav button').forEach((button) => button.addEventListener('click', () => {
+        document.querySelectorAll('.nav button').forEach((item) => item.classList.toggle('active', item === button));
+        document.querySelectorAll('.section').forEach((item) => item.classList.toggle('active', item.id === button.dataset.view));
+        document.getElementById('page-title').textContent = `Quản lý ${button.textContent.trim().replace(/^[◇◎▤]\s*/, '').toLowerCase()}`;
+    }));
+    document.getElementById('show-product-form').addEventListener('click', () => document.getElementById('product-form').classList.toggle('show'));
+    document.getElementById('show-account-form').addEventListener('click', () => document.getElementById('account-form').classList.toggle('show'));
+    document.getElementById('product-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const form = new FormData(event.currentTarget);
+        data.products.unshift({ name: form.get('name'), category: form.get('category'), price: form.get('price'), active: true });
+        save('products'); event.currentTarget.reset(); event.currentTarget.classList.remove('show'); render();
+    });
+    document.getElementById('account-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const form = new FormData(event.currentTarget);
+        data.accounts.unshift({ name: form.get('name'), username: form.get('username'), email: form.get('email'), active: true });
+        save('accounts'); event.currentTarget.reset(); event.currentTarget.classList.remove('show'); render();
+    });
+    document.addEventListener('click', (event) => {
+        if (event.target.matches('[data-remove-product]')) {
+            data.products.splice(Number(event.target.dataset.removeProduct), 1); save('products'); render();
+        }
+        if (event.target.matches('[data-toggle-account]')) {
+            const account = data.accounts[Number(event.target.dataset.toggleAccount)];
+            account.active = !account.active; save('accounts'); render();
+        }
+    });
+    document.addEventListener('change', (event) => {
+        if (event.target.matches('[data-order]')) {
+            data.orders[Number(event.target.dataset.order)].status = event.target.value; save('orders'); render();
+        }
+    });
+    document.querySelectorAll('[data-search]').forEach((input) => input.addEventListener('input', () => {
+        const query = input.value.toLocaleLowerCase('vi');
+        document.querySelectorAll(`#${input.dataset.search} tbody tr`).forEach((row) => { row.hidden = !row.textContent.toLocaleLowerCase('vi').includes(query); });
+    }));
+    document.getElementById('logout').addEventListener('click', () => {
+        localStorage.removeItem('petshopAdminSession'); window.location.href = '/login/';
+    });
+    document.getElementById('today').textContent = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'full' }).format(new Date());
+    render();
+</script>
+</body>
+</html>

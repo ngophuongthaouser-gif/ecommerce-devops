@@ -1,4 +1,5 @@
 {% load static %}
+{% load order_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -157,13 +158,13 @@
                         {% for item in cart_items %}
                         <div class="d-flex justify-content-between mb-2">
                             <span>{{ item.product.name }} x {{ item.quantity }}</span>
-                            <span>{{ item.total_price }}£</span>
+                            <span>{{ item.total_price|vnd }}</span>
                         </div>
                         {% endfor %}
                         <hr>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span>{{ subtotal }}£</span>
+                            <span>{{ subtotal|vnd }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping:</span>
@@ -172,7 +173,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total:</strong>
-                            <strong>{{ total }}£</strong>
+                            <strong>{{ total|vnd }}</strong>
                         </div>
                     </div>
                 </div>

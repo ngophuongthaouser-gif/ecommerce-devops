@@ -1,0 +1,251 @@
+{% load static %}
+{% load order_filters %}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quản trị | Pet Shop</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #342c2c;
+            --muted: #817779;
+            --pink: #f5b8c7;
+            --pink-deep: #bd607a;
+            --paper: #fffaf7;
+            --line: #eee5e2;
+            --green: #39745d;
+            --amber: #a66d22;
+            --red: #a94f50;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.45 "Segoe UI", sans-serif; }
+        button, input, select { font: inherit; }
+        button { cursor: pointer; }
+        a { color: inherit; text-decoration: none; }
+        .shell { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+        .sidebar { background: #fff; border-right: 1px solid var(--line); padding: 25px 18px; display: flex; flex-direction: column; }
+        .brand { display: flex; align-items: center; gap: 12px; padding: 0 7px 28px; font-weight: 750; font-size: 18px; }
+        .brand-mark { width: 40px; height: 40px; border-radius: 50%; background: var(--pink); display: grid; place-items: center; color: #fff; font-size: 21px; }
+        .eyebrow { margin: 9px 10px 10px; color: #a39697; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+        .nav { display: grid; gap: 5px; }
+        .nav button { border: 0; background: transparent; color: #685e60; text-align: left; padding: 11px 12px; border-radius: 7px; font-weight: 600; }
+        .nav button:hover { background: #fff4f4; }
+        .nav button.active { color: #8f455d; background: #fce9ed; }
+        .nav-icon { display: inline-block; width: 27px; color: var(--pink-deep); }
+        .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--line); padding: 18px 8px 0; }
+        .admin-chip { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .avatar { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: #f8dce3; color: #83485a; font-weight: 700; }
+        .admin-chip small { display: block; color: var(--muted); }
+        .logout { width: 100%; border: 1px solid var(--line); border-radius: 6px; background: #fff; padding: 9px; color: #65595b; }
+        main { min-width: 0; padding: 27px clamp(18px, 4vw, 52px) 55px; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 29px; }
+        .crumb { color: var(--muted); font-size: 13px; }
+        h1 { margin: 4px 0 0; font-size: clamp(23px, 3vw, 29px); line-height: 1.2; }
+        .date { color: var(--muted); font-size: 13px; }
+        .section { display: none; animation: enter .22s ease-out; }
+        .section.active { display: block; }
+        @keyframes enter { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+        .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 26px; }
+        .stat { background: #fff; border: 1px solid var(--line); border-radius: 7px; padding: 18px 20px; }
+        .stat-label { color: var(--muted); font-size: 13px; }
+        .stat-value { display: block; font-size: 25px; font-weight: 750; margin-top: 8px; }
+        .stat-note { color: var(--green); font-size: 12px; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 24px 0 14px; }
+        .toolbar h2 { font-size: 18px; margin: 0; }
+        .tools { display: flex; gap: 9px; align-items: center; }
+        .search { width: min(240px, 40vw); border: 1px solid var(--line); background: white; border-radius: 6px; padding: 9px 11px; outline-color: var(--pink-deep); }
+        .primary { border: 0; background: var(--ink); color: white; border-radius: 6px; padding: 10px 14px; font-weight: 650; }
+        .primary:hover { background: #59494c; }
+        .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 700px; }
+        th, td { border-bottom: 1px solid #f1ebea; padding: 13px 15px; vertical-align: middle; }
+        th { color: var(--muted); font-size: 12px; font-weight: 700; background: #fffdfc; }
+        tr:last-child td { border-bottom: 0; }
+        .product-name { font-weight: 650; }
+        .subtext { color: var(--muted); font-size: 12px; }
+        .badge { display: inline-block; border-radius: 20px; padding: 4px 9px; font-size: 12px; font-weight: 650; background: #edf5f0; color: var(--green); white-space: nowrap; }
+        .badge.off { background: #f5eaea; color: var(--red); }
+        .status-badge { display: inline-block; border-radius: 20px; padding: 4px 9px; font-size: 12px; font-weight: 650; }
+        .status-pending { background: #fff3d9; color: #9a6b15; }
+        .status-shipping { background: #e6f2ff; color: #1b5fb0; }
+        .status-delivered { background: #eaf7ee; color: #1f6d43; }
+        .status-review { background: #f4e8ff; color: #7a4bb8; }
+        .empty { color: var(--muted); font-style: italic; }
+        @media (max-width: 760px) {
+            .shell { grid-template-columns: 1fr; }
+            .sidebar { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px 14px; }
+            .brand { padding: 0 5px 10px; }
+            .eyebrow, .sidebar-bottom { display: none; }
+            .nav { grid-template-columns: repeat(3, 1fr); }
+            .nav button { text-align: center; padding: 9px 4px; font-size: 12px; }
+            .nav-icon { display: block; width: auto; margin-bottom: 2px; }
+            main { padding: 21px 14px 40px; }
+            .topbar { margin-bottom: 20px; }
+            .date { display: none; }
+            .stats { gap: 8px; }
+            .stat { padding: 13px 11px; }
+            .toolbar { align-items: flex-start; flex-direction: column; }
+            .tools { width: 100%; }
+            .search { flex: 1; width: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand"><span class="brand-mark">P</span><span>Pet Shop <small class="subtext">QUẢN TRỊ</small></span></div>
+        <div class="eyebrow">Tổng quan</div>
+        <nav class="nav" aria-label="Điều hướng quản trị">
+            <button class="active" data-view="products"><span class="nav-icon">◇</span>Sản phẩm</button>
+            <button data-view="accounts"><span class="nav-icon">◎</span>Tài khoản</button>
+            <button data-view="orders"><span class="nav-icon">▤</span>Đơn hàng</button>
+        </nav>
+        <div class="sidebar-bottom">
+            <div class="admin-chip"><span class="avatar">A</span><span><strong>{{ request.user.username }}</strong><small>Quản trị viên</small></span></div>
+            <a href="{% url 'logout' %}" style="display:block;text-decoration:none;text-align:center;">
+                <button class="logout" type="button">Đăng xuất</button>
+            </a>
+        </div>
+    </aside>
+    <main>
+        <header class="topbar">
+            <div><div class="crumb">Pet Shop / Quản trị</div><h1 id="page-title">Quản lý sản phẩm</h1></div>
+            <div class="date">{{ now|date:"d/m/Y" }}</div>
+        </header>
+
+        <section class="section active" id="products">
+            <div class="stats">
+                <div class="stat stat-link" data-target="products" style="cursor:pointer; transition: .2s ease;">
+                    <span class="stat-label">Tổng sản phẩm</span>
+                    <strong class="stat-value">{{ total_products }}</strong>
+                    <span class="stat-note">Trong danh mục</span>
+                </div>
+                <div class="stat stat-link" data-target="accounts" style="cursor:pointer; transition: .2s ease;">
+                    <span class="stat-label">Tài khoản khách hàng</span>
+                    <strong class="stat-value">{{ customer_count }}</strong>
+                    <span class="stat-note">Đã đăng ký</span>
+                </div>
+                <div class="stat stat-link" data-target="orders" style="cursor:pointer; transition: .2s ease;">
+                    <span class="stat-label">Đơn hàng mới</span>
+                    <strong class="stat-value">{{ pending_orders }}</strong>
+                    <span class="stat-note">Chờ xác nhận</span>
+                </div>
+            </div>
+            <div class="toolbar"><h2>Danh sách sản phẩm</h2><div class="tools"><input class="search" data-search="product-table" placeholder="Tìm sản phẩm..." aria-label="Tìm sản phẩm"></div></div>
+            <div class="table-wrap">
+                <table id="product-table">
+                    <thead><tr><th>SẢN PHẨM</th><th>DANH MỤC</th><th>GIÁ</th><th>TRẠNG THÁI</th></tr></thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td><span class="product-name">{{ product.name }}</span></td>
+                            <td>{{ product.category.name }}</td>
+                            <td>{{ product.price|vnd }}</td>
+                            <td>
+                                <span class="badge {% if product.is_active %}{% else %}off{% endif %}">
+                                    {% if product.is_active %}Đang bán{% else %}Tạm ẩn{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="empty">Chưa có sản phẩm nào.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section" id="accounts">
+            <div class="toolbar"><h2>Tài khoản khách hàng</h2><div class="tools"><input class="search" data-search="account-table" placeholder="Tìm tài khoản..." aria-label="Tìm tài khoản"></div></div>
+            <div class="table-wrap">
+                <table id="account-table">
+                    <thead><tr><th>KHÁCH HÀNG</th><th>TÊN ĐĂNG NHẬP</th><th>EMAIL</th><th>TRẠNG THÁI</th></tr></thead>
+                    <tbody>
+                        {% for customer in customers %}
+                        <tr>
+                            <td><span class="product-name">{{ customer.get_full_name|default:customer.username }}</span></td>
+                            <td>{{ customer.username }}</td>
+                            <td>{{ customer.email|default:'Chưa cập nhật' }}</td>
+                            <td>
+                                <span class="badge {% if customer.is_active %}{% else %}off{% endif %}">
+                                    {% if customer.is_active %}Hoạt động{% else %}Đã khóa{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="empty">Chưa có tài khoản nào.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section" id="orders">
+            <div class="toolbar"><h2>Danh sách đơn hàng</h2><div class="tools"><input class="search" data-search="order-table" placeholder="Tìm mã đơn / khách hàng..." aria-label="Tìm đơn hàng"></div></div>
+            <div class="table-wrap">
+                <table id="order-table">
+                    <thead><tr><th>MÃ ĐƠN</th><th>KHÁCH HÀNG</th><th>NGÀY ĐẶT</th><th>TỔNG TIỀN</th><th>TRẠNG THÁI</th></tr></thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td><strong>#{{ order.id }}</strong></td>
+                            <td>{{ order.user.get_full_name|default:order.user.username }}</td>
+                            <td>{{ order.created_at|date:"d/m/Y" }}</td>
+                            <td>{{ order.total_amount|vnd }}</td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                    <span class="status-badge status-pending">{{ order.get_status_display }}</span>
+                                {% elif order.status == 'shipping' %}
+                                    <span class="status-badge status-shipping">{{ order.get_status_display }}</span>
+                                {% elif order.status == 'delivered' %}
+                                    <span class="status-badge status-delivered">{{ order.get_status_display }}</span>
+                                {% else %}
+                                    <span class="status-badge status-review">{{ order.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="empty">Chưa có đơn hàng nào.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+<script>
+    function switchTab(targetView) {
+        const button = document.querySelector(`.nav button[data-view="${targetView}"]`);
+        if (!button) return;
+
+        document.querySelectorAll('.nav button').forEach((item) => item.classList.toggle('active', item === button));
+        document.querySelectorAll('.section').forEach((item) => item.classList.toggle('active', item.id === targetView));
+        document.getElementById('page-title').textContent = `Quản lý ${button.textContent.trim().replace(/^[◇◎▤]\s*/, '').toLowerCase()}`;
+    }
+
+    document.querySelectorAll('.nav button').forEach((button) => {
+        button.addEventListener('click', () => switchTab(button.dataset.view));
+    });
+
+    document.querySelectorAll('.stat-link').forEach((card) => {
+        card.addEventListener('click', () => switchTab(card.dataset.target));
+        card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-1px)');
+        card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+    });
+
+    document.querySelectorAll('[data-search]').forEach((input) => {
+        input.addEventListener('input', () => {
+            const query = input.value.trim().toLowerCase();
+            const table = document.getElementById(input.dataset.search);
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach((row) => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    });
+</script>
+</body>
+</html>

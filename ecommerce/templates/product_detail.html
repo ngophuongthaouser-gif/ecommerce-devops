@@ -1,4 +1,5 @@
 {% load static %}
+{% load order_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,7 +103,7 @@
                 <div class="col-md-6">
                     <div class="product-info">
                         <h1>{{ product.name }}</h1>
-                        <div class="product-price">{{ product.price }}£</div>
+                        <div class="product-price">{{ product.price|vnd }}</div>
                         <div class="product-description">
                             <h4>Description</h4>
                             <p>{{ product.description }}</p>

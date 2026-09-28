@@ -19,10 +19,15 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from accounts.models import Product, Category, Review
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from accounts import views
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+def admin_redirect_view(request):
+    if request.user.is_authenticated and request.user.username == 'admin':
+        return redirect('admin_dashboard')
+    return redirect('login')
 
 def home_view(request):
     categories = Category.objects.all()
@@ -75,7 +80,8 @@ def product_detail(request, product_id):
     })
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin_redirect_view, name='django_admin_redirect'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('', home_view, name='home'),
     path('search/', views.search_products, name='search'),
     path('product/<int:product_id>/', product_detail, name='product_detail'),

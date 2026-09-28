@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load order_filters %}
 
 {% block content %}
 <div class="container mt-4">
@@ -26,7 +27,7 @@
                     </p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Tổng tiền:</strong> {{ order.total_amount|floatformat:0 }}đ</p>
+                    <p><strong>Tổng tiền:</strong> {{ order.total_amount|vnd }}</p>
                     <p><strong>Phương thức thanh toán:</strong> {{ order.get_payment_method_display }}</p>
                 </div>
             </div>

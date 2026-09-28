@@ -1,4 +1,5 @@
 {% load static %}
+{% load order_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,7 +127,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <h5>{{ item.total_price }}VND</h5>
+                                    <h5>{{ item.total_price|vnd }}</h5>
                                 </div>
                                 <div class="col-md-1">
                                     <form method="post" action="{% url 'remove_from_cart' item.id %}">
@@ -151,7 +152,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
-                            <span>{{ subtotal }}£</span>
+                            <span>{{ subtotal|vnd }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Shipping:</span>
@@ -160,7 +161,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
                             <strong>Total:</strong>
-                            <strong>{{ total }}£</strong>
+                            <strong>{{ total|vnd }}</strong>
                         </div>
                         {% if cart_items %}
                             <a href="{% url 'checkout_cart' %}" class="btn btn-success w-100">Proceed to Checkout</a>

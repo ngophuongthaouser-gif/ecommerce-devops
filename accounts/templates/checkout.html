@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load order_filters %}
 
 {% block content %}
 <div class="container mt-4">
@@ -20,7 +21,7 @@
                             <small class="text-muted">Số lượng: {{ item.quantity }}</small>
                         </div>
                         <div class="text-end">
-                            <div>{{ item.total_price|floatformat:0 }}đ</div>
+                            <div>{{ item.total_price|vnd }}</div>
                         </div>
                     </div>
                     {% endfor %}
@@ -28,7 +29,7 @@
                 <div class="card-footer">
                     <div class="d-flex justify-content-between">
                         <h5>Tổng tiền:</h5>
-                        <h5>{{ total|floatformat:0 }}đ</h5>
+                        <h5>{{ total|vnd }}</h5>
                     </div>
                 </div>
             </div>

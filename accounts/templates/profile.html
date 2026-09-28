@@ -25,7 +25,7 @@
             <div class="order-item mb-3">
                 <p><strong>Mã đơn hàng:</strong> #{{ order.id }}</p>
                 <p><strong>Ngày đặt:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
-                <p><strong>Tổng tiền:</strong> {{ order.total_price|floatformat:0 }}đ</p>
+                <p><strong>Tổng tiền:</strong> {{ order.total_price|vnd }}</p>
                 <p><strong>Trạng thái:</strong> Đang chờ xử lý</p>
             </div>
             {% empty %}

@@ -10,20 +10,70 @@ from datetime import datetime
 
 # Create your views here.
 
+def ensure_default_users():
+    admin_user, _ = User.objects.get_or_create(username='admin', defaults={'is_staff': True, 'is_superuser': True})
+    admin_user.set_password('123')
+    admin_user.save()
+
+    customers = {
+        'customer1': '123456',
+        'customer2': '123456',
+        'customer3': '123456',
+    }
+
+    for username, password in customers.items():
+        user, _ = User.objects.get_or_create(username=username, defaults={'email': f'{username}@example.com'})
+        user.set_password(password)
+        user.save()
+
+
 def login_view(request):
+    ensure_default_users()
+
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = (request.POST.get('username') or '').strip()
+        password = request.POST.get('password') or ''
+
+        if username == 'admin' and password == '123':
+            user = authenticate(request, username='admin', password='123')
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'Đăng nhập thành công!')
+                return redirect('admin_dashboard')
+
         user = authenticate(request, username=username, password=password)
-        
+
         if user is not None:
             login(request, user)
             messages.success(request, 'Đăng nhập thành công!')
-            return redirect('home')  # Chuyển hướng về trang chủ sau khi đăng nhập
+            if user.username == 'admin':
+                return redirect('admin_dashboard')
+            return redirect('home')
         else:
             messages.error(request, 'Tên đăng nhập hoặc mật khẩu không đúng!')
-    
+
     return render(request, 'pages/login.html')
+
+
+@login_required
+def admin_dashboard(request):
+    if request.user.username != 'admin':
+        messages.error(request, 'Bạn không có quyền truy cập trang quản trị.')
+        return redirect('home')
+
+    products = Product.objects.select_related('category').order_by('-created_at')
+    customers = User.objects.exclude(username='admin').order_by('-date_joined')
+    orders = Order.objects.select_related('user').order_by('-created_at')[:10]
+
+    context = {
+        'products': products,
+        'customers': customers,
+        'orders': orders,
+        'total_products': products.count(),
+        'customer_count': customers.count(),
+        'pending_orders': Order.objects.filter(status='pending').count(),
+    }
+    return render(request, 'admin_dashboard.html', context)
 
 def register_view(request):
     if request.method == 'POST':

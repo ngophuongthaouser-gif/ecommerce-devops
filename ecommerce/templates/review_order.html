@@ -1,4 +1,5 @@
 {% load static %}
+{% load order_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -118,7 +119,7 @@
                                 <h5>Thông tin đơn hàng</h5>
                                 <p><strong>Ngày đặt:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
                                 <p><strong>Ngày giao hàng:</strong> {{ order.delivery_date|date:"d/m/Y" }}</p>
-                                <p><strong>Tổng tiền:</strong> {{ order.total_amount }}£</p>
+                                <p><strong>Tổng tiền:</strong> {{ order.total_amount|vnd }}</p>
                             </div>
                             
                             <form method="post">
