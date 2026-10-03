@@ -2,13 +2,33 @@ pipeline {
     agent any
 
     stages {
-        stage('Test') {
-            steps {
-                echo 'Jenkins da ket noi voi project Ecommerce!'
-                echo 'Pipeline dang chay thanh cong!'
 
-                bat '''
-                    .venv\\Scripts\\python.exe manage.py check
+        stage('Checkout') {
+            steps {
+                echo '=== CHECKOUT ==='
+                checkout scm
+            }
+        }
+
+        stage('Setup Python') {
+            steps {
+                echo '=== SETUP PYTHON ==='
+
+                sh '''
+                    python3 --version
+                    python3 -m venv .venv
+                    .venv/bin/pip install --upgrade pip
+                    .venv/bin/pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Django Check') {
+            steps {
+                echo '=== DJANGO CHECK ==='
+
+                sh '''
+                    .venv/bin/python manage.py check
                 '''
             }
         }
@@ -16,11 +36,16 @@ pipeline {
 
     post {
         success {
+            echo '========================================'
             echo 'PIPELINE THANH CONG!'
+            echo 'Django system check OK!'
+            echo '========================================'
         }
 
         failure {
+            echo '========================================'
             echo 'PIPELINE THAT BAI!'
+            echo '========================================'
         }
 
         always {
