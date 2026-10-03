@@ -1,8 +1,7 @@
-﻿pipeline {
+pipeline {
     agent any
 
     stages {
-
         stage('Test') {
             steps {
                 echo 'Jenkins da ket noi voi project Ecommerce!'
@@ -13,22 +12,15 @@
                 '''
             }
         }
-
     }
 
     post {
         success {
-            echo '========================================'
             echo 'PIPELINE THANH CONG!'
-            echo 'Django system check OK!'
-            echo '========================================'
         }
 
         failure {
-            echo '========================================'
             echo 'PIPELINE THAT BAI!'
-            echo 'Hay kiem tra log ben tren.'
-            echo '========================================'
         }
 
         always {
